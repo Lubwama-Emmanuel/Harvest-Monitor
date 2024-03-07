@@ -45,6 +45,7 @@ export default function RootLayout() {
   useEffect(() => {
     const prepare = async () => {
       const token = await AsyncStorage.getItem("token");
+      await AsyncStorage.getItem("token");
       console.log(token);
       if (token !== null) {
         setIsAuthenticated(true);

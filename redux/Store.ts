@@ -14,6 +14,8 @@ const loadAuthState = async () => {
   try {
     const savedToken = await AsyncStorage.getItem("token");
 
+    await AsyncStorage.removeItem("token");
+
     if (savedToken !== null) {
       store.dispatch(setUser());
     }
