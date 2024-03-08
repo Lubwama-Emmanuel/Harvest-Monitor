@@ -7,13 +7,27 @@ import {
   ContributionGraph,
   StackedBarChart,
 } from "react-native-chart-kit";
+import * as Notification from "expo-notifications";
 
 import { ScrollView, Text, View } from "@/components/Themed";
 import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
 import { themeColor } from "@/constants/Colors";
+import ButtonPrimary from "@/components/ButtonPrimary";
 
 export default function TabOneScreen() {
+  async function scheduleNotificationHandler() {
+    console.log("trigged");
+    await Notification.scheduleNotificationAsync({
+      content: {
+        title: "My first notification!",
+        body: "This is its body",
+      },
+      trigger: {
+        seconds: 5,
+      },
+    });
+  }
   return (
     <ScrollView
       contentContainerStyle={{
@@ -21,6 +35,9 @@ export default function TabOneScreen() {
         paddingBottom: tenth * 10,
       }}
     >
+      <ButtonPrimary onPressFunction={scheduleNotificationHandler}>
+        Press me
+      </ButtonPrimary>
       <Text>Overall Chart</Text>
       <ProgressChart
         data={{

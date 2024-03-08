@@ -13,6 +13,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { Provider } from "react-redux";
 import { store } from "@/redux/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 
 export {
   // Catch any errors thrown by the Layout component.
