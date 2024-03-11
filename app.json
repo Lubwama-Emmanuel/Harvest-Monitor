@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "harvest_monitor",
+    "name": "Harvest Monitor",
     "slug": "harvest_monitor",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#87A922"
       },
       "package": "com.emmanuellubwama.harvest_monitor"
