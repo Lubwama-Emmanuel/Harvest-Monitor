@@ -5,7 +5,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { Provider } from "react-redux";
 import { store } from "@/redux/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
+import NotificationBanner from "@/components/NotificationBanner";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,7 +47,7 @@ export default function RootLayout() {
     const prepare = async () => {
       const token = await AsyncStorage.getItem("token");
       await AsyncStorage.getItem("token");
-      console.log(token);
+      console.log(token, isAuthenticated);
       if (token !== null) {
         setIsAuthenticated(true);
       }
@@ -66,21 +66,9 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          {!isAuthenticated ? (
-            <Stack.Screen
-              name="(auth)"
-              options={{ headerShown: false, headerTitle: "hey" }}
-            />
-          ) : (
-            <Stack.Screen name="(app)" options={{ headerShown: false }} />
-          )}
-        </Stack>
+        <NotificationBanner />
+        <Slot />
       </ThemeProvider>
     </Provider>
   );
 }
-
-// function RootLayoutNav() {
-
-// }

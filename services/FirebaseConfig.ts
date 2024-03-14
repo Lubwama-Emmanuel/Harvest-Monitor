@@ -4,13 +4,13 @@ import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBOwxG4GNp3fK0WEU5OV-G2CToCoOGAXDI",
-  authDomain: "harvest-monitor.firebaseapp.com",
-  projectId: "harvest-monitor",
-  storageBucket: "harvest-monitor.appspot.com",
-  messagingSenderId: "683657136277",
-  appId: "1:683657136277:web:5ff931b4c80f380495739c",
-  measurementId: "G-8S1MG0WY2Y",
+  apiKey: "AIzaSyC23Ylh0WAuAGQvWtqddmP9wN0eEJqtTMQ",
+  authDomain: "glam-n-go-development.firebaseapp.com",
+  projectId: "glam-n-go-development",
+  storageBucket: "glam-n-go-development.appspot.com",
+  messagingSenderId: "808258835068",
+  appId: "1:808258835068:web:0f62278da9c999623d2ff9",
+  measurementId: "G-107Q5H4HJN",
 };
 
 export const app = initializeApp(firebaseConfig);
