@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, TextInput } from "react-native";
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
-import { View, Text } from "@/components/Themed";
+import { Ionicons, Feather } from "@expo/vector-icons";
+import { View } from "@/components/Themed";
 import HeadingText from "@/components/HeadingText";
 import Input from "@/components/Input";
 import { useRef, useState } from "react";
@@ -15,14 +15,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/AuthSlice";
 import Loader from "@/components/Loader";
+import { LogIn, getUser } from "@/utils/Authentication";
+import { showNotification } from "@/redux/slices/NotificationSlice";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
-  const [passwordError, setPasswordError] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
@@ -31,7 +32,7 @@ export default function Login() {
   const passwordRef = useRef<TextInput>(null);
 
   const handleSignUp = () => {
-    router.replace("/signUp");
+    router.replace("/signUpScreen");
   };
 
   const handleEmailBlur = () => {
@@ -48,24 +49,40 @@ export default function Login() {
   };
 
   const handlePasswordChange = (password: string) => {
-    setPasswordError("");
     setPassword(password);
   };
 
-  async function handleLogin() {
-    if (emailError.length > 0 || email.length === 0 || password.length === 0) {
-      setEmailError("You can't leave this field empty!");
-      setPasswordError("You can't leave this field empty!");
-      return;
-    }
+  async function handleLogIn() {
     setIsLoading(true);
+
     try {
-      await AsyncStorage.setItem("token", "hundf");
-      dispatch(setUser());
+      const res = await LogIn(email, password);
+      const token = await res?.user.getIdToken();
+      const userId = res.user.uid;
+
+      if (token != null) {
+        const user = await getUser(userId);
+
+        await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("userDetails", JSON.stringify(user));
+        dispatch(setUser(user));
+      }
+
       setIsLoading(false);
-      router.replace("/(app)/(tabs)");
+      dispatch(showNotification("You logged in successfully"));
+      router.replace("/(app)/");
+      // console.log(res?.user);
     } catch (error) {
-      console.log("an error occured", error);
+      setIsLoading(false);
+      if (error instanceof Error) {
+        if (error.message === "Firebase: Error (auth/invalid-credential).") {
+          dispatch(showNotification("Incorrect email or password!"));
+        } else if (
+          error.message === "Firebase: Error (auth/network-request-failed)."
+        ) {
+          dispatch(showNotification("Please check your internet connection!"));
+        }
+      }
     }
   }
 
@@ -92,7 +109,7 @@ export default function Login() {
             onSubmitEditing: () => passwordRef.current?.focus(),
             blurOnSubmit: false,
           }}
-          error={emailError}
+          error=""
         >
           <Ionicons name="person" color={"gray"} size={20} />
         </Input>
@@ -107,7 +124,7 @@ export default function Login() {
             onChangeText: handlePasswordChange,
             returnKeyType: "done",
           }}
-          error={passwordError}
+          error=""
         >
           {showPassword ? (
             <Pressable
@@ -140,7 +157,7 @@ export default function Login() {
               password.length === 0
             )
           }
-          onPressFunction={handleLogin}
+          onPressFunction={handleLogIn}
         >
           Log in
         </ButtonPrimary>

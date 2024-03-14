@@ -11,14 +11,19 @@ import HeadingMedium from "@/components/HeadingMedium";
 import PressableText from "@/components/PressableText";
 import { tenth } from "@/constants/Measurements";
 import { router } from "expo-router";
+import { SignUp, addUser } from "@/utils/Authentication";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/slices/AuthSlice";
+import { UserType } from "@/types/UserType";
+import { showNotification } from "@/redux/slices/NotificationSlice";
+import Loader from "@/components/Loader";
 
-export default function SignUp() {
+export default function SignUpScreen() {
   const [name, setName] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [phoneError, setPhoneError] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -26,12 +31,15 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const nameInputRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmPasswordRef = useRef<TextInput>(null);
+
+  const dispatch = useDispatch();
 
   const handleLogIn = () => {
     router.replace("/login");
@@ -75,11 +83,6 @@ export default function SignUp() {
     }
   };
 
-  const handlePhoneChange = (phone: string) => {
-    setPhoneError("");
-    setPhone(phone);
-  };
-
   const handlePasswordBlur = () => {
     if (password.length < 8) {
       setPasswordError("Password should be more than 8 characters");
@@ -92,6 +95,44 @@ export default function SignUp() {
     setNameError("");
     setName(name);
   };
+
+  async function handleSignUp() {
+    console.log("clicked");
+    setIsLoading(true);
+
+    try {
+      const res = await SignUp(email, password);
+      const token = await res?.user.getIdToken();
+      const userId = res.user.uid;
+
+      const userDetails: UserType = {
+        userId,
+        name,
+        email,
+      };
+
+      if (token != null) {
+        await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("user", JSON.stringify(userDetails));
+        await addUser(userId, name, email);
+        dispatch(setUser(userDetails));
+      }
+
+      setIsLoading(false);
+      dispatch(showNotification("You registered successfully!"));
+      console.log(res?.user);
+      router.replace("/(app)/");
+    } catch (error) {
+      setIsLoading(false);
+      if (error instanceof Error) {
+        console.log(error.message);
+        if (error.message === "Firebase: Error (auth/email-already-in-use).") {
+          dispatch(showNotification("Email already in use!"));
+          router.replace("/login");
+        }
+      }
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -208,6 +249,7 @@ export default function SignUp() {
               password.length === 0
             )
           }
+          onPressFunction={handleSignUp}
         >
           Sign up
         </ButtonPrimary>
@@ -216,6 +258,7 @@ export default function SignUp() {
         <HeadingMedium>Already have an account ?</HeadingMedium>
         <PressableText onPressFunction={handleLogIn}> Log in.</PressableText>
       </View>
+      {isLoading && <Loader message="Signing you up" />}
     </ScrollView>
   );
 }
