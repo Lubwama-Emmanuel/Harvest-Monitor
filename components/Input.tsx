@@ -44,19 +44,16 @@ const Input = forwardRef(
 
 const styles = StyleSheet.create({
   textInputContainer: {
-    // marginTop: tenth,
     width: "100%",
-    // marginHorizontal: tenth,
+    // marginBottom: tenth,
   },
   textInputLabel: {
     fontSize: size.p2,
-    // opacity: 0.6,
     marginBottom: tenth * 0.5,
   },
   innerContainer: {
     borderWidth: 1,
-    paddingHorizontal: tenth * 1.6,
-    paddingVertical: tenth,
+    paddingRight: tenth,
     borderRadius: 8,
     borderColor: themeColor,
     flexDirection: "row",
@@ -65,6 +62,10 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontSize: 16,
+    paddingHorizontal: tenth * 1.6,
+    paddingVertical: tenth,
+    width: "90%",
+    borderRadius: 8,
   },
   error: {
     color: "red",
