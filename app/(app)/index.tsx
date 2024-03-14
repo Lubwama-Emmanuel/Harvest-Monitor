@@ -1,23 +1,14 @@
 import { Dimensions, StyleSheet } from "react-native";
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph,
-  StackedBarChart,
-} from "react-native-chart-kit";
+import { LineChart, BarChart, ProgressChart } from "react-native-chart-kit";
 import * as Notification from "expo-notifications";
 
-import { ScrollView, Text, View } from "@/components/Themed";
+import { ScrollView, Text } from "@/components/Themed";
 import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
 import { themeColor } from "@/constants/Colors";
-import ButtonPrimary from "@/components/ButtonPrimary";
 
 export default function TabOneScreen() {
   async function scheduleNotificationHandler() {
-    console.log("trigged");
     await Notification.scheduleNotificationAsync({
       content: {
         title: "My first notification!",
@@ -35,9 +26,6 @@ export default function TabOneScreen() {
         paddingBottom: tenth * 10,
       }}
     >
-      <ButtonPrimary onPressFunction={scheduleNotificationHandler}>
-        Press me
-      </ButtonPrimary>
       <Text>Overall Chart</Text>
       <ProgressChart
         data={{
