@@ -19,6 +19,7 @@ export default function TabOneScreen() {
       },
     });
   }
+
   return (
     <ScrollView
       contentContainerStyle={{
