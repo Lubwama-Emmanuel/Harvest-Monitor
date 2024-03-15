@@ -3,14 +3,15 @@ import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 
+// fireabase config
 const firebaseConfig = {
-  apiKey: "AIzaSyC23Ylh0WAuAGQvWtqddmP9wN0eEJqtTMQ",
-  authDomain: "glam-n-go-development.firebaseapp.com",
-  projectId: "glam-n-go-development",
-  storageBucket: "glam-n-go-development.appspot.com",
-  messagingSenderId: "808258835068",
-  appId: "1:808258835068:web:0f62278da9c999623d2ff9",
-  measurementId: "G-107Q5H4HJN",
+  apiKey: process.env.EXPO_PUBLIC_API_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_API_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_API_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_API_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_API_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_API_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_API_MEASUREMENT_ID,
 };
 
 export const app = initializeApp(firebaseConfig);
