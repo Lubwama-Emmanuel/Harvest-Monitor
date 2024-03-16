@@ -13,8 +13,6 @@ export default function AppLayout() {
 
   const dispatch = useDispatch();
 
-  console.log(isLoggedIn);
-
   if (!isLoggedIn) {
     return <Redirect href={"/(auth)/login"} />;
   }
@@ -47,6 +45,7 @@ export default function AppLayout() {
           },
         }}
       />
+      {/* modal */}
       <Stack.Screen
         name="modal"
         options={{
