@@ -30,6 +30,7 @@ export default function AppLayout() {
   }
 
   return (
+    // morej
     <Stack>
       <Stack.Screen
         name="index"
