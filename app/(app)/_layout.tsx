@@ -30,7 +30,6 @@ export default function AppLayout() {
   }
 
   return (
-    // morej
     <Stack>
       <Stack.Screen
         name="index"
@@ -46,7 +45,6 @@ export default function AppLayout() {
           },
         }}
       />
-      {/* modal */}
       <Stack.Screen
         name="modal"
         options={{
