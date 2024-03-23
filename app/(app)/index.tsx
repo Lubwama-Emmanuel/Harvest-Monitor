@@ -7,6 +7,7 @@ import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
 import { themeColor } from "@/constants/Colors";
 
+// Main screens
 export default function TabOneScreen() {
   async function scheduleNotificationHandler() {
     await Notification.scheduleNotificationAsync({
