@@ -136,12 +136,12 @@ export default function SignUpScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.imageContainer}>
+      {/* <View style={styles.imageContainer}>
         <Image
           source={require("@/assets/images/signUp.png")}
           style={styles.image}
         />
-      </View>
+      </View> */}
       <HeadingText>Sign Up</HeadingText>
       <View style={styles.innerContainer}>
         <Input

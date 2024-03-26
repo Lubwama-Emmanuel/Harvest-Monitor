@@ -2,13 +2,18 @@ import { Dimensions, StyleSheet } from "react-native";
 import { LineChart, BarChart, ProgressChart } from "react-native-chart-kit";
 import * as Notification from "expo-notifications";
 
-import { ScrollView, Text } from "@/components/Themed";
+import { ScrollView, Text, View } from "@/components/Themed";
 import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
 import { themeColor } from "@/constants/Colors";
+import { useGetDataQuery } from "@/api/firebaseApi";
+import Loader from "@/components/Loader";
+import ValueContainer from "@/components/ValueContainer";
 
 // Main screens
 export default function TabOneScreen() {
+  const { data, isError, isLoading } = useGetDataQuery();
+
   async function scheduleNotificationHandler() {
     await Notification.scheduleNotificationAsync({
       content: {
@@ -21,6 +26,9 @@ export default function TabOneScreen() {
     });
   }
 
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <ScrollView
       contentContainerStyle={{
@@ -28,29 +36,24 @@ export default function TabOneScreen() {
         paddingBottom: tenth * 10,
       }}
     >
-      <Text>Overall Chart</Text>
-      <ProgressChart
-        data={{
-          labels: ["Temp", "Hum", "CH4"], // optional
-          data: [0.4, 0.6, 0.8],
-        }}
-        strokeWidth={24}
-        radius={36}
-        width={width * 0.95} // from react-native
-        height={height * 0.25}
-        chartConfig={{
-          backgroundColor: themeColor,
-          backgroundGradientFrom: themeColor,
-          backgroundGradientTo: themeColor,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        }}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+      <View style={styles.overAllChart}>
+        <ValueContainer
+          title="Temparature"
+          value={Number(data?.temp)}
+          symbol="°C"
+        />
+        <ValueContainer
+          title="Humidity"
+          value={Number(data?.humidity)}
+          symbol="%"
+        />
+        <ValueContainer
+          title="Methane"
+          value={Number(data?.methane)}
+          symbol=""
+        />
+      </View>
+
       <Text>Temperature Chart</Text>
       <LineChart
         data={{
@@ -188,5 +191,8 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: "80%",
+  },
+  overAllChart: {
+    marginVertical: tenth,
   },
 });

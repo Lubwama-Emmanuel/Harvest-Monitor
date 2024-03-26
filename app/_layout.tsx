@@ -11,9 +11,10 @@ import { useEffect, useState } from "react";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { Provider } from "react-redux";
-import { store } from "@/redux/Store";
+import { persistor, store } from "@/redux/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NotificationBanner from "@/components/NotificationBanner";
+import { PersistGate } from "redux-persist/integration/react";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,7 +48,6 @@ export default function RootLayout() {
     const prepare = async () => {
       const token = await AsyncStorage.getItem("token");
       await AsyncStorage.getItem("token");
-      console.log(token, isAuthenticated);
       if (token !== null) {
         setIsAuthenticated(true);
       }
@@ -65,10 +65,14 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <NotificationBanner />
-        <Slot />
-      </ThemeProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <NotificationBanner />
+          <Slot />
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
   );
 }
