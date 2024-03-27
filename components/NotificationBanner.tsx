@@ -10,7 +10,7 @@ import { hideNotification } from "../redux/slices/NotificationSlice";
 export default function NotificationBanner() {
   const dispatch = useDispatch();
   const { visible, message } = useSelector(
-    (state: RootState) => state.notification
+    (state: RootState) => state.persistedReducer.notification
   );
   const position = useRef(new Animated.Value(-100)).current;
 
