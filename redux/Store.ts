@@ -1,27 +1,36 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer, { setUser } from "./slices/AuthSlice";
 import noticationReducer from "./slices/NotificationSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { persistReducer, persistStore } from "redux-persist";
+import { firebaseApi } from "@/api/firebaseApi";
+import { setupListeners } from "@reduxjs/toolkit/query";
 
-export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    notification: noticationReducer,
-  },
+const rootReducer = combineReducers({
+  auth: authReducer,
+  notification: noticationReducer,
 });
 
-const loadAuthState = async () => {
-  try {
-    const savedToken = await AsyncStorage.getItem("token");
-
-    await AsyncStorage.removeItem("token");
-
-    if (savedToken !== null) {
-      store.dispatch(setUser());
-    }
-  } catch (error) {}
+const persistConfig = {
+  key: "root",
+  storage: AsyncStorage,
+  whitelist: ["auth"],
 };
 
-void loadAuthState();
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: { persistedReducer, [firebaseApi.reducerPath]: firebaseApi.reducer },
+
+  // Added middlewae for serialization ignore
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST"],
+      },
+    }).concat(firebaseApi.middleware),
+});
+setupListeners(store.dispatch);
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
