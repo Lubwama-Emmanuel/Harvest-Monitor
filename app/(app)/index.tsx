@@ -16,14 +16,14 @@ interface AggregatedData {
   labels: string[];
   temperatures: number[];
   humidities: number[];
-  methanes: number[];
+  carbondioxides: number[];
 }
 
 interface AggregatedDataByWeek {
   labels: string[];
   temperatures: number[];
   humidities: number[];
-  methanes: number[];
+  carbondioxides: number[];
 }
 
 const processDataForChartByWeek = (
@@ -33,7 +33,7 @@ const processDataForChartByWeek = (
     string,
     Record<
       string,
-      { temps: number[]; humidities: number[]; methanes: number[] }
+      { temps: number[]; humidities: number[]; carbondioxides: number[] }
     >
   > = {};
 
@@ -49,13 +49,15 @@ const processDataForChartByWeek = (
       groupedByWeekAndDay[weekOfYear][dayOfWeek] = {
         temps: [],
         humidities: [],
-        methanes: [],
+        carbondioxides: [],
       };
     }
 
     groupedByWeekAndDay[weekOfYear][dayOfWeek].temps.push(item.temp);
     groupedByWeekAndDay[weekOfYear][dayOfWeek].humidities.push(item.humidity);
-    groupedByWeekAndDay[weekOfYear][dayOfWeek].methanes.push(item.methane);
+    groupedByWeekAndDay[weekOfYear][dayOfWeek].carbondioxides.push(
+      item.carbondioxide
+    );
   });
 
   // Calculate averages and prepare data for each week separately
@@ -73,13 +75,13 @@ const processDataForChartByWeek = (
         daysData[day].humidities.reduce((acc, curr) => acc + curr, 0) /
         daysData[day].humidities.length
     );
-    const methanes = labels.map(
+    const carbondioxides = labels.map(
       (day) =>
-        daysData[day].methanes.reduce((acc, curr) => acc + curr, 0) /
-        daysData[day].methanes.length
+        daysData[day].carbondioxides.reduce((acc, curr) => acc + curr, 0) /
+        daysData[day].carbondioxides.length
     );
 
-    result[week] = { labels, temperatures, humidities, methanes };
+    result[week] = { labels, temperatures, humidities, carbondioxides };
   });
 
   return result;
@@ -88,18 +90,22 @@ const processDataForChartByWeek = (
 const processDataForChart = (data: DataType[]): AggregatedData => {
   const groupedByDay: Record<
     string,
-    { temps: number[]; humidities: number[]; methanes: number[] }
+    { temps: number[]; humidities: number[]; carbondioxides: number[] }
   > = {};
 
   // Grouping data
   data.forEach((item) => {
     const dayOfWeek = moment.unix(item.ts).format("ddd");
     if (!groupedByDay[dayOfWeek]) {
-      groupedByDay[dayOfWeek] = { temps: [], humidities: [], methanes: [] };
+      groupedByDay[dayOfWeek] = {
+        temps: [],
+        humidities: [],
+        carbondioxides: [],
+      };
     }
     groupedByDay[dayOfWeek].temps.push(item.temp);
     groupedByDay[dayOfWeek].humidities.push(item.humidity);
-    groupedByDay[dayOfWeek].methanes.push(item.methane);
+    groupedByDay[dayOfWeek].carbondioxides.push(item.carbondioxide);
   });
 
   // Calculating avg temp, hum, meth
@@ -114,16 +120,19 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
     return humidities.reduce((acc, curr) => acc + curr, 0) / humidities.length;
   });
 
-  const methanes = labels.map((day) => {
-    const methanes = groupedByDay[day].methanes;
-    return methanes.reduce((acc, curr) => acc + curr, 0) / methanes.length;
+  const carbondioxides = labels.map((day) => {
+    const carbondioxides = groupedByDay[day].carbondioxides;
+    return (
+      carbondioxides.reduce((acc, curr) => acc + curr, 0) /
+      carbondioxides.length
+    );
   });
 
   return {
     labels,
     temperatures: temparatures.map((t) => parseFloat(t.toFixed(2))),
     humidities: humidities.map((h) => parseFloat(h.toFixed(2))),
-    methanes: methanes.map((m) => parseFloat(m.toFixed(2))),
+    carbondioxides: carbondioxides.map((m) => parseFloat(m.toFixed(2))),
   };
 };
 
@@ -141,7 +150,11 @@ export default function TabOneScreen() {
     const dataArray: DataType[] = Object.values(data);
     filteredData = dataArray.filter(
       (item) =>
-        !(item.humidity === 998 && item.methane === 0 && item.temp === 998)
+        !(
+          item.humidity === 998 &&
+          item.carbondioxide === 5000 &&
+          item.temp === 998
+        )
     );
     const sortedArray = filteredData.sort((a, b) => a.ts - b.ts);
     lastedData = sortedArray[filteredData.length - 1];
@@ -186,8 +199,8 @@ export default function TabOneScreen() {
           symbol="%"
         />
         <ValueContainer
-          title="Methane"
-          value={Number(lastedData?.methane)}
+          title="carbondioxide"
+          value={Number(lastedData?.carbondioxide)}
           symbol="Ppm"
         />
       </View>
@@ -260,13 +273,13 @@ export default function TabOneScreen() {
         }}
       />
 
-      <Text>Methane Chart</Text>
+      <Text>carbondioxide Chart</Text>
       <LineChart
         data={{
           labels: weekData.labels,
           datasets: [
             {
-              data: weekData.methanes,
+              data: weekData.carbondioxides,
             },
           ],
         }}

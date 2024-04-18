@@ -8,6 +8,7 @@ import {
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 
 import { auth, db } from "../services/FirebaseConfig";
+import { ref, set } from "firebase/database";
 
 // Sign up function for email and password
 export const SignUp = async (email: string, password: string) => {
@@ -27,12 +28,9 @@ export const addUser = async (
   email: string | null
 ) => {
   try {
-    const usersRef = collection(db, "Users");
-
-    await setDoc(doc(usersRef, userId), {
+    await set(ref(db, "users/" + userId), {
       name,
       email,
-      docId: userId,
     });
   } catch (error) {
     console.log("failed to add user", error);
