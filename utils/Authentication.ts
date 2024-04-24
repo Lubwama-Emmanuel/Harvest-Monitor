@@ -21,7 +21,7 @@ export const SignUp = async (email: string, password: string) => {
   return userCredential;
 };
 
-// Adding authenticated user to users collection
+// Adding authenticated user to users collection n more
 export const addUser = async (
   userId: string,
   name: string | null,
