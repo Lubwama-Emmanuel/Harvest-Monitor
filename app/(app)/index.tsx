@@ -75,6 +75,7 @@ const processDataForChartByWeek = (
         daysData[day].humidities.reduce((acc, curr) => acc + curr, 0) /
         daysData[day].humidities.length
     );
+
     const carbondioxides = labels.map(
       (day) =>
         daysData[day].carbondioxides.reduce((acc, curr) => acc + curr, 0) /
@@ -138,7 +139,7 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
 
 // Main screens
 export default function TabOneScreen() {
-  const { data, isError, isLoading, refetch } = useGetDataQuery(undefined, {
+  const { data, isLoading } = useGetDataQuery(undefined, {
     pollingInterval: 10000,
     skipPollingIfUnfocused: true,
   });
@@ -151,11 +152,12 @@ export default function TabOneScreen() {
     filteredData = dataArray.filter(
       (item) =>
         !(
-          item.humidity === 998 &&
-          item.carbondioxide === 5000 &&
-          item.temp === 998
+          (item.humidity === 998 && item.carbondioxide === 5000)
+          // &&
+          // item.temp === 998
         )
     );
+
     const sortedArray = filteredData.sort((a, b) => a.ts - b.ts);
     lastedData = sortedArray[filteredData.length - 1];
   }
@@ -189,7 +191,7 @@ export default function TabOneScreen() {
     >
       <View style={styles.overAllChart}>
         <ValueContainer
-          title="Temparature"
+          title="Temperature"
           value={Number(lastedData?.temp)}
           symbol="°C"
         />
@@ -199,7 +201,7 @@ export default function TabOneScreen() {
           symbol="%"
         />
         <ValueContainer
-          title="carbondioxide"
+          title="Carbondioxide"
           value={Number(lastedData?.carbondioxide)}
           symbol="Ppm"
         />
@@ -243,7 +245,7 @@ export default function TabOneScreen() {
       />
       <Text>Humidity Chart</Text>
 
-      <BarChart
+      <LineChart
         data={{
           labels: weekData.labels,
           datasets: [
@@ -254,8 +256,8 @@ export default function TabOneScreen() {
         }}
         width={width * 0.95} // from react-native
         height={height * 0.25}
-        yAxisSuffix="%"
-        yAxisLabel="" // optional, defaults to 1
+        yAxisSuffix="°C"
+        yAxisInterval={1} // optional, defaults to 1
         chartConfig={{
           backgroundColor: themeColor,
           backgroundGradientFrom: themeColor,
@@ -266,14 +268,20 @@ export default function TabOneScreen() {
           style: {
             borderRadius: 16,
           },
+          propsForDots: {
+            r: "7",
+            strokeWidth: "2",
+            stroke: themeColor,
+          },
         }}
+        bezier
         style={{
           marginVertical: 8,
           borderRadius: 16,
         }}
       />
 
-      <Text>carbondioxide Chart</Text>
+      <Text>Carbondioxide Chart</Text>
       <LineChart
         data={{
           labels: weekData.labels,

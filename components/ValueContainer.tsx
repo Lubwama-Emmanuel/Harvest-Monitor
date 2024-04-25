@@ -15,6 +15,16 @@ export default function ValueContainer({
   symbol,
 }: ValueContainerProps) {
   const isNegative = value < 0 ? true : false;
+  let divValue;
+
+  if (title === "Temperature") {
+    divValue = 100;
+  } else if (title === "Humidity") {
+    divValue = 998;
+  } else if (title === "Carbondioxide") {
+    divValue = 5000;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
@@ -24,7 +34,9 @@ export default function ValueContainer({
             style={[
               styles.progress,
               {
-                width: `${Math.abs((Math.ceil(value) / 200) * 100)}%`,
+                width: `${Math.abs(
+                  (Math.ceil(value) / (divValue ?? 1)) * 100
+                )}%`,
                 backgroundColor: isNegative ? "red" : themeColor,
               },
             ]}
