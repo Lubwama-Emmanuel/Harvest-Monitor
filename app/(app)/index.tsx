@@ -164,6 +164,8 @@ export default function TabOneScreen() {
 
   const weekNumber = moment.unix(Date.now() / 1000).week();
 
+  const got = processDataForChart(filteredData);
+
   const processedData = processDataForChartByWeek(filteredData);
   const weekData = processedData[weekNumber];
 

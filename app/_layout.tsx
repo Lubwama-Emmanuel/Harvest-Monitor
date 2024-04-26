@@ -15,6 +15,7 @@ import { persistor, store } from "@/redux/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NotificationBanner from "@/components/NotificationBanner";
 import { PersistGate } from "redux-persist/integration/react";
+import { usePushNotifications } from "@/components/usePushNotifications";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -30,6 +31,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { expoPushToken, notification } = usePushNotifications();
+
+  const data = JSON.stringify(notification, undefined, 2);
   const colorScheme = useColorScheme();
 
   const [loaded, error] = useFonts({
