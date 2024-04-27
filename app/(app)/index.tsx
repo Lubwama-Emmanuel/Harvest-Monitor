@@ -1,16 +1,21 @@
-import { Dimensions, StyleSheet } from "react-native";
-import { LineChart, BarChart, ProgressChart } from "react-native-chart-kit";
+import { Pressable, StyleSheet, Switch } from "react-native";
+import { LineChart } from "react-native-chart-kit";
 import * as Notification from "expo-notifications";
+import * as Print from "expo-print";
+import { shareAsync } from "expo-sharing";
+import { Link } from "expo-router";
 
 import { ScrollView, Text, View } from "@/components/Themed";
+import ButtonPrimary from "@/components/ButtonPrimary";
 import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
-import { themeColor } from "@/constants/Colors";
+import Colors, { themeColor } from "@/constants/Colors";
 import { useGetDataQuery } from "@/api/firebaseApi";
 import Loader from "@/components/Loader";
 import ValueContainer from "@/components/ValueContainer";
 import { DataType } from "@/types/DataType";
 import moment from "moment";
+import { useEffect, useState } from "react";
 
 interface AggregatedData {
   labels: string[];
@@ -89,53 +94,62 @@ const processDataForChartByWeek = (
 };
 
 const processDataForChart = (data: DataType[]): AggregatedData => {
+  // Get today's date in "YYYY-MM-DD" format
+  const today = moment().format("YYYY-MM-DD");
+
+  // Filter data to include only today's entries
+  const todaysData = data.filter(
+    (item) => moment.unix(item.ts).format("YYYY-MM-DD") === today
+  );
+
+  // Prepare to group data by today's date (even though it's only one day, this keeps your structure consistent)
   const groupedByDay: Record<
     string,
     { temps: number[]; humidities: number[]; carbondioxides: number[] }
   > = {};
 
   // Grouping data
-  data.forEach((item) => {
-    const dayOfWeek = moment.unix(item.ts).format("ddd");
-    if (!groupedByDay[dayOfWeek]) {
-      groupedByDay[dayOfWeek] = {
+  todaysData.forEach((item) => {
+    if (!groupedByDay[today]) {
+      groupedByDay[today] = {
         temps: [],
         humidities: [],
         carbondioxides: [],
       };
     }
-    groupedByDay[dayOfWeek].temps.push(item.temp);
-    groupedByDay[dayOfWeek].humidities.push(item.humidity);
-    groupedByDay[dayOfWeek].carbondioxides.push(item.carbondioxide);
+    groupedByDay[today].temps.push(item.temp);
+    groupedByDay[today].humidities.push(item.humidity);
+    groupedByDay[today].carbondioxides.push(item.carbondioxide);
   });
 
-  // Calculating avg temp, hum, meth
-  const labels = Object.keys(groupedByDay);
-  const temparatures = labels.map((day) => {
+  // Calculate averages for today
+  const labels = Object.keys(groupedByDay); // This will typically be just today's date
+  const temperatures = labels.map((day) => {
     const temps = groupedByDay[day].temps;
     return temps.reduce((acc, curr) => acc + curr, 0) / temps.length;
   });
 
   const humidities = labels.map((day) => {
-    const humidities = groupedByDay[day].humidities;
-    return humidities.reduce((acc, curr) => acc + curr, 0) / humidities.length;
+    const hums = groupedByDay[day].humidities;
+    return hums.reduce((acc, curr) => acc + curr, 0) / hums.length;
   });
 
   const carbondioxides = labels.map((day) => {
-    const carbondioxides = groupedByDay[day].carbondioxides;
-    return (
-      carbondioxides.reduce((acc, curr) => acc + curr, 0) /
-      carbondioxides.length
-    );
+    const co2s = groupedByDay[day].carbondioxides;
+    return co2s.reduce((acc, curr) => acc + curr, 0) / co2s.length;
   });
 
+  // Map values to keep decimal precision
   return {
     labels,
-    temperatures: temparatures.map((t) => parseFloat(t.toFixed(2))),
+    temperatures: temperatures.map((t) => parseFloat(t.toFixed(2))),
     humidities: humidities.map((h) => parseFloat(h.toFixed(2))),
-    carbondioxides: carbondioxides.map((m) => parseFloat(m.toFixed(2))),
+    carbondioxides: carbondioxides.map((c) => parseFloat(c.toFixed(2))),
   };
 };
+
+let html;
+let rows;
 
 // Main screens
 export default function TabOneScreen() {
@@ -143,6 +157,56 @@ export default function TabOneScreen() {
     pollingInterval: 10000,
     skipPollingIfUnfocused: true,
   });
+
+  const [isWeekly, setIsWeekly] = useState(true);
+
+  const toggleSwitch = () => setIsWeekly((previousState) => !previousState);
+
+  useEffect(() => {
+    if (data) {
+      const dataArray: DataType[] = Object.values(data);
+      rows = dataArray
+        .map(
+          (item) => `
+        <tr>
+          <td>${moment.unix(item.ts).format("YYYY-MM-DD HH:mm")}</td>
+          <td>${item.temp}</td>
+          <td>${item.humidity}</td>
+          <td>${item.carbondioxide}</td>
+        </tr>
+      `
+        )
+        .join("");
+    }
+    html = `
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    </style>
+  </head>
+  <body style="text-align: center;">
+    <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Temperature (°C)</th>
+            <th>Humidity (%)</th>
+            <th>Carbon Dioxide (ppm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+    </table>
+  </body>
+</html>
+`;
+  }, [data]);
 
   let lastedData;
   let filteredData: DataType[] = [];
@@ -164,26 +228,20 @@ export default function TabOneScreen() {
 
   const weekNumber = moment.unix(Date.now() / 1000).week();
 
-  const got = processDataForChart(filteredData);
+  const processData = (values: DataType[], isWeekly: Boolean) => {
+    if (isWeekly) {
+      const overAllData = processDataForChartByWeek(values);
+      return overAllData[weekNumber];
+    }
+    return processDataForChart(values);
+  };
 
-  const processedData = processDataForChartByWeek(filteredData);
-  const weekData = processedData[weekNumber];
-
-  async function scheduleNotificationHandler() {
-    await Notification.scheduleNotificationAsync({
-      content: {
-        title: "My first notification!",
-        body: "This is its body",
-      },
-      trigger: {
-        seconds: 5,
-      },
-    });
-  }
+  const chartData = processData(filteredData, isWeekly);
 
   if (isLoading) {
     return <Loader />;
   }
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -208,116 +266,145 @@ export default function TabOneScreen() {
           symbol="Ppm"
         />
       </View>
+      <View style={styles.switchContainer}>
+        <Text>{isWeekly ? "Weekly" : "Daily"}</Text>
+        <Switch
+          trackColor={{ false: "#767577", true: "#f4f3f4" }}
+          thumbColor={isWeekly ? "#87A922" : "#f4f3f4"}
+          onValueChange={toggleSwitch}
+          value={isWeekly}
+        />
+      </View>
 
-      <Text>Temperature Chart</Text>
-      <LineChart
-        data={{
-          labels: weekData.labels,
-          datasets: [
-            {
-              data: weekData.temperatures,
-            },
-          ],
-        }}
-        width={width * 0.95} // from react-native
-        height={height * 0.25}
-        yAxisSuffix="°C"
-        yAxisInterval={1} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: themeColor,
-          backgroundGradientFrom: themeColor,
-          backgroundGradientTo: themeColor,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: "7",
-            strokeWidth: "2",
-            stroke: themeColor,
-          },
-        }}
-        bezier
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
-      <Text>Humidity Chart</Text>
+      {chartData.temperatures.length !== 0 ? (
+        <View>
+          <Text>Temperature Chart</Text>
+          <LineChart
+            data={{
+              labels: chartData.labels,
+              datasets: [
+                {
+                  data: chartData.temperatures,
+                },
+              ],
+            }}
+            width={width * 0.95} // from react-native
+            height={height * 0.25}
+            yAxisSuffix="°C"
+            yAxisInterval={1} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: themeColor,
+              backgroundGradientFrom: themeColor,
+              backgroundGradientTo: themeColor,
+              decimalPlaces: 0, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: "7",
+                strokeWidth: "2",
+                stroke: themeColor,
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+          <Text>Humidity Chart</Text>
 
-      <LineChart
-        data={{
-          labels: weekData.labels,
-          datasets: [
-            {
-              data: weekData.humidities,
-            },
-          ],
-        }}
-        width={width * 0.95} // from react-native
-        height={height * 0.25}
-        yAxisSuffix="°C"
-        yAxisInterval={1} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: themeColor,
-          backgroundGradientFrom: themeColor,
-          backgroundGradientTo: themeColor,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: "7",
-            strokeWidth: "2",
-            stroke: themeColor,
-          },
-        }}
-        bezier
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+          <LineChart
+            data={{
+              labels: chartData.labels,
+              datasets: [
+                {
+                  data: chartData.humidities,
+                },
+              ],
+            }}
+            width={width * 0.95} // from react-native
+            height={height * 0.25}
+            yAxisSuffix="°C"
+            yAxisInterval={1} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: themeColor,
+              backgroundGradientFrom: themeColor,
+              backgroundGradientTo: themeColor,
+              decimalPlaces: 0, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: "7",
+                strokeWidth: "2",
+                stroke: themeColor,
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
 
-      <Text>Carbondioxide Chart</Text>
-      <LineChart
-        data={{
-          labels: weekData.labels,
-          datasets: [
-            {
-              data: weekData.carbondioxides,
-            },
-          ],
-        }}
-        width={width * 0.95} // from react-native
-        height={height * 0.25}
-        yAxisSuffix="ppm"
-        yAxisInterval={1} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: themeColor,
-          backgroundGradientFrom: themeColor,
-          backgroundGradientTo: themeColor,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: "7",
-            strokeWidth: "2",
-            stroke: themeColor,
-          },
-        }}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+          <Text>Carbondioxide Chart</Text>
+          <LineChart
+            data={{
+              labels: chartData.labels,
+              datasets: [
+                {
+                  data: chartData.carbondioxides,
+                },
+              ],
+            }}
+            width={width * 0.95} // from react-native
+            height={height * 0.25}
+            yAxisSuffix="ppm"
+            yAxisInterval={1} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: themeColor,
+              backgroundGradientFrom: themeColor,
+              backgroundGradientTo: themeColor,
+              decimalPlaces: 0, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: "7",
+                strokeWidth: "2",
+                stroke: themeColor,
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+      ) : (
+        <View style={styles.emptyView}>
+          <Text style={styles.text}>No Data Logged Today</Text>
+          <Text style={styles.text}>
+            Please check your sensors or switch to weekly data
+          </Text>
+        </View>
+      )}
+
+      <View style={styles.btnContainer}>
+        <Link href="/report" asChild>
+          <Pressable style={styles.btn}>
+            <Text style={styles.btnText}>Generate Report</Text>
+          </Pressable>
+        </Link>
+      </View>
     </ScrollView>
   );
 }
@@ -335,4 +422,36 @@ const styles = StyleSheet.create({
   overAllChart: {
     marginVertical: tenth,
   },
+  btnContainer: {
+    width: "80%",
+  },
+  switchContainer: {
+    width: "100%",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingRight: tenth,
+    gap: tenth,
+  },
+  emptyView: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: height * 0.4,
+  },
+  text: {
+    fontSize: 14,
+    color: themeColor,
+  },
+  btn: {
+    paddingVertical: tenth,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: themeColor,
+    marginHorizontal: tenth * 0.5,
+    marginVertical: tenth,
+    flexGrow: 1,
+    // width: "100%",
+  },
+  btnText: { fontSize: 18, fontWeight: "700", color: Colors.light.background },
 });
