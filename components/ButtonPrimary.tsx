@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     // width: "100%",
   },
-  text: { fontSize: 18, fontWeight: "700" },
+  text: { fontSize: 18, fontWeight: "700", color: colors.light.background },
   disabled: {
     opacity: 0.7,
   },
