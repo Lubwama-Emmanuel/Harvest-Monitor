@@ -1,12 +1,8 @@
 import { Pressable, StyleSheet, Switch } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import * as Notification from "expo-notifications";
-import * as Print from "expo-print";
-import { shareAsync } from "expo-sharing";
 import { Link } from "expo-router";
 
 import { ScrollView, Text, View } from "@/components/Themed";
-import ButtonPrimary from "@/components/ButtonPrimary";
 import { tenth } from "@/constants/Measurements";
 import { height, width } from "@/constants/Dimension";
 import Colors, { themeColor } from "@/constants/Colors";
@@ -139,6 +135,8 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
     return co2s.reduce((acc, curr) => acc + curr, 0) / co2s.length;
   });
 
+  console.log(labels, temperatures, humidities, carbondioxides);
+
   // Map values to keep decimal precision
   return {
     labels,
@@ -231,12 +229,14 @@ export default function TabOneScreen() {
   const processData = (values: DataType[], isWeekly: Boolean) => {
     if (isWeekly) {
       const overAllData = processDataForChartByWeek(values);
+      console.log("weekNumber", overAllData[weekNumber]);
       return overAllData[weekNumber];
     }
     return processDataForChart(values);
   };
 
   const chartData = processData(filteredData, isWeekly);
+  console.log("chartData", chartData);
 
   if (isLoading) {
     return <Loader />;
@@ -276,127 +276,127 @@ export default function TabOneScreen() {
         />
       </View>
 
-      {chartData.temperatures.length !== 0 ? (
-        <View>
-          <Text>Temperature Chart</Text>
-          <LineChart
-            data={{
-              labels: chartData.labels,
-              datasets: [
-                {
-                  data: chartData.temperatures,
-                },
-              ],
-            }}
-            width={width * 0.95} // from react-native
-            height={height * 0.25}
-            yAxisSuffix="°C"
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-              backgroundColor: themeColor,
-              backgroundGradientFrom: themeColor,
-              backgroundGradientTo: themeColor,
-              decimalPlaces: 0, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
+      {/* {chartData.temperatures.length !== 0 ? ( */}
+      <View>
+        <Text>Temperature Chart</Text>
+        <LineChart
+          data={{
+            labels: chartData.labels,
+            datasets: [
+              {
+                data: chartData.temperatures,
               },
-              propsForDots: {
-                r: "7",
-                strokeWidth: "2",
-                stroke: themeColor,
-              },
-            }}
-            bezier
-            style={{
-              marginVertical: 8,
+            ],
+          }}
+          width={width * 0.95} // from react-native
+          height={height * 0.25}
+          yAxisSuffix="°C"
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: themeColor,
+            backgroundGradientFrom: themeColor,
+            backgroundGradientTo: themeColor,
+            decimalPlaces: 0, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
               borderRadius: 16,
-            }}
-          />
-          <Text>Humidity Chart</Text>
+            },
+            propsForDots: {
+              r: "7",
+              strokeWidth: "2",
+              stroke: themeColor,
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+        <Text>Humidity Chart</Text>
 
-          <LineChart
-            data={{
-              labels: chartData.labels,
-              datasets: [
-                {
-                  data: chartData.humidities,
-                },
-              ],
-            }}
-            width={width * 0.95} // from react-native
-            height={height * 0.25}
-            yAxisSuffix="°C"
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-              backgroundColor: themeColor,
-              backgroundGradientFrom: themeColor,
-              backgroundGradientTo: themeColor,
-              decimalPlaces: 0, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
+        <LineChart
+          data={{
+            labels: chartData.labels,
+            datasets: [
+              {
+                data: chartData.humidities,
               },
-              propsForDots: {
-                r: "7",
-                strokeWidth: "2",
-                stroke: themeColor,
-              },
-            }}
-            bezier
-            style={{
-              marginVertical: 8,
+            ],
+          }}
+          width={width * 0.95} // from react-native
+          height={height * 0.25}
+          yAxisSuffix="°C"
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: themeColor,
+            backgroundGradientFrom: themeColor,
+            backgroundGradientTo: themeColor,
+            decimalPlaces: 0, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
               borderRadius: 16,
-            }}
-          />
+            },
+            propsForDots: {
+              r: "7",
+              strokeWidth: "2",
+              stroke: themeColor,
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
 
-          <Text>Carbondioxide Chart</Text>
-          <LineChart
-            data={{
-              labels: chartData.labels,
-              datasets: [
-                {
-                  data: chartData.carbondioxides,
-                },
-              ],
-            }}
-            width={width * 0.95} // from react-native
-            height={height * 0.25}
-            yAxisSuffix="ppm"
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-              backgroundColor: themeColor,
-              backgroundGradientFrom: themeColor,
-              backgroundGradientTo: themeColor,
-              decimalPlaces: 0, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
+        <Text>Carbondioxide Chart</Text>
+        <LineChart
+          data={{
+            labels: chartData.labels,
+            datasets: [
+              {
+                data: chartData.carbondioxides,
               },
-              propsForDots: {
-                r: "7",
-                strokeWidth: "2",
-                stroke: themeColor,
-              },
-            }}
-            bezier
-            style={{
-              marginVertical: 8,
+            ],
+          }}
+          width={width * 0.95} // from react-native
+          height={height * 0.25}
+          yAxisSuffix="ppm"
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: themeColor,
+            backgroundGradientFrom: themeColor,
+            backgroundGradientTo: themeColor,
+            decimalPlaces: 0, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
               borderRadius: 16,
-            }}
-          />
-        </View>
-      ) : (
+            },
+            propsForDots: {
+              r: "7",
+              strokeWidth: "2",
+              stroke: themeColor,
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      </View>
+      {/* ) : (
         <View style={styles.emptyView}>
           <Text style={styles.text}>No Data Logged Today</Text>
           <Text style={styles.text}>
             Please check your sensors or switch to weekly data
           </Text>
         </View>
-      )}
+      )} */}
 
       <View style={styles.btnContainer}>
         <Link href="/report" asChild>
