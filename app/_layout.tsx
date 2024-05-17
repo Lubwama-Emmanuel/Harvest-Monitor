@@ -33,7 +33,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { expoPushToken, notification } = usePushNotifications();
 
-  const data = JSON.stringify(notification, undefined, 2);
+  // console.log(expoPushToken?.data, notification);
   const colorScheme = useColorScheme();
 
   const [loaded, error] = useFonts({

@@ -12,6 +12,11 @@ import ValueContainer from "@/components/ValueContainer";
 import { DataType } from "@/types/DataType";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import ButtonPrimary from "@/components/ButtonPrimary";
+import {
+  sendPushNotification,
+  usePushNotifications,
+} from "@/components/usePushNotifications";
 
 interface AggregatedData {
   labels: string[];
@@ -135,7 +140,7 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
     return co2s.reduce((acc, curr) => acc + curr, 0) / co2s.length;
   });
 
-  console.log(labels, temperatures, humidities, carbondioxides);
+  // console.log(labels, temperatures, humidities, carbondioxides);
 
   // Map values to keep decimal precision
   return {
@@ -156,9 +161,38 @@ export default function TabOneScreen() {
     skipPollingIfUnfocused: true,
   });
 
+  const { data: notificationData } = useGetDataQuery(undefined, {
+    pollingInterval: 18000000,
+    skipPollingIfUnfocused: true,
+  });
+
   const [isWeekly, setIsWeekly] = useState(true);
 
   const toggleSwitch = () => setIsWeekly((previousState) => !previousState);
+
+  const { expoPushToken } = usePushNotifications();
+
+  useEffect(() => {
+    async function prepare() {
+      if (notificationData) {
+        const dataArray: DataType[] = Object.values(notificationData);
+
+        const latestValue = dataArray.pop();
+
+        if (latestValue && expoPushToken) {
+          if (latestValue?.temp > 15) {
+            await sendPushNotification(expoPushToken, "Temperature");
+          } else if (latestValue?.carbondioxide > 600) {
+            await sendPushNotification(expoPushToken, "Carbondioxide");
+          } else if (latestValue?.humidity > 70) {
+            await sendPushNotification(expoPushToken, "Humidity");
+          }
+        }
+      }
+    }
+
+    prepare();
+  }, [notificationData]);
 
   useEffect(() => {
     if (data) {
@@ -229,7 +263,7 @@ export default function TabOneScreen() {
   const processData = (values: DataType[], isWeekly: Boolean) => {
     if (isWeekly) {
       const overAllData = processDataForChartByWeek(values);
-      console.log("weekNumber", weekNumber, overAllData[20]);
+      // console.log("weekNumber", weekNumber, overAllData[20]);
       return overAllData[weekNumber] === undefined
         ? { carbondioxides: [], humidities: [], labels: [], temperatures: [] }
         : overAllData[weekNumber];
@@ -238,7 +272,7 @@ export default function TabOneScreen() {
   };
 
   const chartData = processData(filteredData, isWeekly);
-  console.log("chartData", chartData);
+  // console.log("chartData", chartData);
 
   if (isLoading) {
     return <Loader />;
