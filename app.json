@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#87A922"
       },
-      "package": "com.emmanuellubwama.harvest_monitor"
+      "package": "com.emmanuellubwama.harvest_monitor",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

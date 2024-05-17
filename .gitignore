@@ -6,6 +6,7 @@ node_modules/
 #builds
 android
 ios
+google-services.json
 
 
 # Expo
