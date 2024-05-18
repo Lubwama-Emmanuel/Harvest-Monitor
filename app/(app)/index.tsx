@@ -17,6 +17,7 @@ import {
   sendPushNotification,
   usePushNotifications,
 } from "@/components/usePushNotifications";
+import { checkAndSendNotifications } from "@/components/BackgroundFetch";
 
 interface AggregatedData {
   labels: string[];
@@ -140,7 +141,7 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
     return co2s.reduce((acc, curr) => acc + curr, 0) / co2s.length;
   });
 
-  // console.log(labels, temperatures, humidities, carbondioxides);
+  console.log(labels, temperatures, humidities, carbondioxides);
 
   // Map values to keep decimal precision
   return {
@@ -156,15 +157,13 @@ let rows;
 
 // Main screens
 export default function TabOneScreen() {
+  const [skip, setSkip] = useState(false);
   const { data, isLoading } = useGetDataQuery(undefined, {
     pollingInterval: 10000,
     skipPollingIfUnfocused: true,
   });
 
-  const { data: notificationData } = useGetDataQuery(undefined, {
-    pollingInterval: 18000000,
-    skipPollingIfUnfocused: true,
-  });
+  const { data: notificationData } = useGetDataQuery(undefined, { skip });
 
   const [isWeekly, setIsWeekly] = useState(true);
 
@@ -173,26 +172,19 @@ export default function TabOneScreen() {
   const { expoPushToken } = usePushNotifications();
 
   useEffect(() => {
-    async function prepare() {
-      if (notificationData) {
-        const dataArray: DataType[] = Object.values(notificationData);
+    if (notificationData && expoPushToken) {
+      console.log("effect called");
 
-        const latestValue = dataArray.pop();
-
-        if (latestValue && expoPushToken) {
-          if (latestValue?.temp > 15) {
-            await sendPushNotification(expoPushToken, "Temperature");
-          } else if (latestValue?.carbondioxide > 600) {
-            await sendPushNotification(expoPushToken, "Carbondioxide");
-          } else if (latestValue?.humidity > 70) {
-            await sendPushNotification(expoPushToken, "Humidity");
-          }
-        }
+      async function prepare() {
+        await checkAndSendNotifications(notificationData, expoPushToken!);
       }
-    }
 
-    prepare();
-  }, [notificationData]);
+      prepare();
+
+      // Set skip to true after the first fetch
+      setSkip(true);
+    }
+  }, [notificationData, expoPushToken]);
 
   useEffect(() => {
     if (data) {
