@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -67,6 +68,7 @@ export const usePushNotifications = (): PushNotificationState => {
         });
       }
 
+      await AsyncStorage.setItem("expoPushToken", token.data);
       return token;
     } else {
       console.log("Must use physical device for Push Notifications");
@@ -96,23 +98,6 @@ export const usePushNotifications = (): PushNotificationState => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (!expoPushToken) return;
-
-  //   const dataRef = ref(db, "newData/log/");
-  //   const unsubscribe = onChildAdded(dataRef, async (snapshot) => {
-  //     const newData = snapshot.val();
-  //     if (newData.temp > 29) {
-  //       console.log("New Data Added", newData.temp);
-  //       const temperature = newData.temp;
-
-  //       await sendPushNotification(expoPushToken, "Temperature");
-  //     }
-  //   });
-
-  //   return () => unsubscribe();
-  // }, [expoPushToken]);
-
   return { expoPushToken, notification };
 };
 
@@ -140,7 +125,7 @@ export async function sendPushNotification(
     data: { data },
   };
 
-  console.log(expoPushToken.data, message);
+  // console.log(expoPushToken.data, message);
 
   try {
     const response = await fetch("https://exp.host/--/api/v2/push/send", {
