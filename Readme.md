@@ -1,8 +1,10 @@
 # Harvest Monitor
 
 ## How to get started
-1. Clone the repo to local
-   git clone
+
+1. Clone the repo to loca
+   <br>
+   <code>git clone</code>
 
 2. Install deps
    yarn install
