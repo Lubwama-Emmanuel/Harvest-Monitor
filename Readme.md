@@ -1,8 +1,6 @@
 # Harvest Monitor
 
-### Harvest Monitor
-
-is a mobile application developed with react native and firebase. It monitors different metrics (Temperature, Carbondioxide and Humidity) in an harvest store.
+Harvest Monitor is a mobile application developed with react native and firebase. It monitors different metrics (Temperature, Carbondioxide and Humidity) in an harvest store.
 
 ## How to get started
 
