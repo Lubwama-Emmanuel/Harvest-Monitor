@@ -1,14 +1,14 @@
 import { Redirect, Stack } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/Store";
+import { RootState } from "@/src/redux/Store";
 import { Pressable, StyleSheet } from "react-native";
-import Colors, { themeColor } from "@/constants/Colors";
-import { height } from "@/constants/Dimension";
+import Colors, { themeColor } from "@/src/constants/Colors";
+import { height } from "@/src/constants/Dimension";
 import { Entypo } from "@expo/vector-icons";
-import { LogOut } from "@/utils/Authentication";
+import { LogOut } from "@/src/utils/Authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { clearUser } from "@/redux/slices/AuthSlice";
-import { showNotification } from "@/redux/slices/NotificationSlice";
+import { clearUser } from "@/src/redux/slices/AuthSlice";
+import { showNotification } from "@/src/redux/slices/NotificationSlice";
 
 export default function AppLayout() {
   const { isLoggedIn } = useSelector(

@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import colors, { themeColor } from "@/constants/Colors";
+import colors, { themeColor } from "@/src/constants/Colors";
 import { Text } from "./Themed";
-import { tenth } from "@/constants/Measurements";
+import { tenth } from "@/src/constants/Measurements";
 
 interface LoaderProps {
   message?: string;

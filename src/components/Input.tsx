@@ -1,10 +1,10 @@
 import { StyleSheet, TextInput, type TextInputProps } from "react-native";
-import colors from "@/constants/Colors";
-import { tenth } from "@/constants/Measurements";
+import colors from "@/src/constants/Colors";
+import { tenth } from "@/src/constants/Measurements";
 import { forwardRef, useRef, type ReactNode, useImperativeHandle } from "react";
-import size from "@/constants/Fonts";
+import size from "@/src/constants/Fonts";
 import { Text, View, useThemeColor } from "./Themed";
-import Colors, { themeColor } from "@/constants/Colors";
+import Colors, { themeColor } from "@/src/constants/Colors";
 
 interface InputProps {
   label: string;

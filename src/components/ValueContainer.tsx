@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Text, View } from "./Themed";
-import { tenth } from "@/constants/Measurements";
-import { themeColor } from "@/constants/Colors";
+import { tenth } from "@/src/constants/Measurements";
+import { themeColor } from "@/src/constants/Colors";
 
 interface ValueContainerProps {
   title: string;

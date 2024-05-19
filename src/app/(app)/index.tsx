@@ -2,22 +2,18 @@ import { Pressable, StyleSheet, Switch } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Link } from "expo-router";
 
-import { ScrollView, Text, View } from "@/components/Themed";
-import { tenth } from "@/constants/Measurements";
-import { height, width } from "@/constants/Dimension";
-import Colors, { themeColor } from "@/constants/Colors";
-import { useGetDataQuery } from "@/api/firebaseApi";
-import Loader from "@/components/Loader";
-import ValueContainer from "@/components/ValueContainer";
-import { DataType } from "@/types/DataType";
+import { ScrollView, Text, View } from "@/src/components/Themed";
+import { tenth } from "@/src/constants/Measurements";
+import { height, width } from "@/src/constants/Dimension";
+import Colors, { themeColor } from "@/src/constants/Colors";
+import { useGetDataQuery } from "@/src/api/firebaseApi";
+import Loader from "@/src/components/Loader";
+import ValueContainer from "@/src/components/ValueContainer";
+import { DataType } from "@/src/types/DataType";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import ButtonPrimary from "@/components/ButtonPrimary";
-import {
-  sendPushNotification,
-  usePushNotifications,
-} from "@/components/usePushNotifications";
-import { checkAndSendNotifications } from "@/components/BackgroundFetch";
+import { usePushNotifications } from "@/src/components/usePushNotifications";
+import { checkAndSendNotifications } from "@/src/components/BackgroundFetch";
 
 interface AggregatedData {
   labels: string[];
@@ -140,8 +136,6 @@ const processDataForChart = (data: DataType[]): AggregatedData => {
     const co2s = groupedByDay[day].carbondioxides;
     return co2s.reduce((acc, curr) => acc + curr, 0) / co2s.length;
   });
-
-  console.log(labels, temperatures, humidities, carbondioxides);
 
   // Map values to keep decimal precision
   return {

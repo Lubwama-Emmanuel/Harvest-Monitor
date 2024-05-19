@@ -1,14 +1,14 @@
-import { Text, View } from "@/components/Themed";
-import ButtonPrimary from "@/components/ButtonPrimary";
+import { Text, View } from "@/src/components/Themed";
+import ButtonPrimary from "@/src/components/ButtonPrimary";
 import * as Print from "expo-print";
 import { shareAsync } from "expo-sharing";
 
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
-import { useGetDataQuery } from "@/api/firebaseApi";
-import { DataType } from "@/types/DataType";
+import { useGetDataQuery } from "@/src/api/firebaseApi";
+import { DataType } from "@/src/types/DataType";
 import moment from "moment";
-import { tenth } from "@/constants/Measurements";
+import { tenth } from "@/src/constants/Measurements";
 
 function createHTMLString(dataArray: DataType[]) {
   const rows = dataArray

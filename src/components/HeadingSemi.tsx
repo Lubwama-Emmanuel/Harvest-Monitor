@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Text, StyleSheet } from "react-native";
-import size from "@/constants/Fonts";
+import size from "@/src/constants/Fonts";
 
 interface TextProps {
   style?: object;

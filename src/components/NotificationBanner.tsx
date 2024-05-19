@@ -1,6 +1,6 @@
 import { Animated, Platform, StyleSheet } from "react-native";
-import { tenth } from "@/constants/Measurements";
-import colors, { themeColor } from "@/constants/Colors";
+import { tenth } from "@/src/constants/Measurements";
+import colors, { themeColor } from "@/src/constants/Colors";
 import { Text } from "./Themed";
 import { useDispatch, useSelector } from "react-redux";
 import { type RootState } from "../redux/Store";

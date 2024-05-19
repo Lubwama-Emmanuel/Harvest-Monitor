@@ -1,8 +1,8 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import HeadingMedium from "./HeadingMedium";
 import { type ReactNode } from "react";
-import colors, { themeColor } from "@/constants/Colors";
-import size from "@/constants/Fonts";
+import colors, { themeColor } from "@/src/constants/Colors";
+import size from "@/src/constants/Fonts";
 
 interface PressableTextProps {
   children: ReactNode;

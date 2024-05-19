@@ -1,22 +1,22 @@
 import { Image, Pressable, StyleSheet, TextInput } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import { View } from "@/components/Themed";
-import HeadingText from "@/components/HeadingText";
-import Input from "@/components/Input";
+import { View } from "@/src/components/Themed";
+import HeadingText from "@/src/components/HeadingText";
+import Input from "@/src/components/Input";
 import { useRef, useState } from "react";
-import { validateEmail } from "@/Helpers/HelperFunctions";
-import ButtonPrimary from "@/components/ButtonPrimary";
-import { height } from "@/constants/Dimension";
-import HeadingMedium from "@/components/HeadingMedium";
-import PressableText from "@/components/PressableText";
-import { tenth } from "@/constants/Measurements";
+import { validateEmail } from "@/src/Helpers/HelperFunctions";
+import ButtonPrimary from "@/src/components/ButtonPrimary";
+import { height } from "@/src/constants/Dimension";
+import HeadingMedium from "@/src/components/HeadingMedium";
+import PressableText from "@/src/components/PressableText";
+import { tenth } from "@/src/constants/Measurements";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/slices/AuthSlice";
-import Loader from "@/components/Loader";
-import { LogIn, getUser } from "@/utils/Authentication";
-import { showNotification } from "@/redux/slices/NotificationSlice";
+import { setUser } from "@/src/redux/slices/AuthSlice";
+import Loader from "@/src/components/Loader";
+import { LogIn, getUser } from "@/src/utils/Authentication";
+import { showNotification } from "@/src/redux/slices/NotificationSlice";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet } from "react-native";
 import { type ReactNode } from "react";
-import colors, { themeColor } from "@/constants/Colors";
-import { tenth } from "@/constants/Measurements";
+import colors, { themeColor } from "@/src/constants/Colors";
+import { tenth } from "@/src/constants/Measurements";
 import { Text } from "./Themed";
 
 interface ButtonPrimaryProps {

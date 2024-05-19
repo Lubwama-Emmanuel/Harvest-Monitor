@@ -3,7 +3,7 @@ import authReducer, { setUser } from "./slices/AuthSlice";
 import noticationReducer from "./slices/NotificationSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { persistReducer, persistStore } from "redux-persist";
-import { firebaseApi } from "@/api/firebaseApi";
+import { firebaseApi } from "@/src/api/firebaseApi";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 const rootReducer = combineReducers({
