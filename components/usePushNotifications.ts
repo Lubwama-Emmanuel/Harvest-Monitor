@@ -7,7 +7,7 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
 import Constants from "expo-constants";
-import { db } from "@/services/FirebaseConfig";
+import { db } from "@/FirebaseConfig";
 import { ref, onChildAdded } from "firebase/database";
 
 export interface PushNotificationState {

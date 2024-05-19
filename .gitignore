@@ -6,7 +6,10 @@ node_modules/
 #builds
 android
 ios
+
+# firebase config
 google-services.json
+FirebaseConfig.ts
 
 
 # Expo

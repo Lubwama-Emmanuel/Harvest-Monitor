@@ -1,4 +1,4 @@
-import { db } from "@/services/FirebaseConfig";
+import { db } from "@/FirebaseConfig";
 import { DataType } from "@/types/DataType";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { get, onValue, ref } from "firebase/database";

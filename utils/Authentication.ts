@@ -7,7 +7,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-import { auth, db } from "../services/FirebaseConfig";
+import { auth, db } from "../FirebaseConfig";
 import { ref, set } from "firebase/database";
 
 // Sign up function for email and password
